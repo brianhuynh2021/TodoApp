@@ -1,30 +1,33 @@
 <template>
-  <div class="todo-app">
-    <h1>To-Do List App</h1>
-    <input v-model="newTask" @keyup.enter="addTask" placeholder="Add a new task">
-    <ul class="task-list">
-      <li v-for="(task, index) in tasks" :key="index" class="task-item">
-        <input type="checkbox" v-model="task.completed" @change="toggleCompleted(index)" class="task-checkbox">
-        <span v-if="!task.editing">{{ task.text }}</span>
-        <input v-else v-model="task.updatedText" @keyup.enter="saveTask(index)" class="edit-input">
-        <button @click="toggleEdit(index)" class="edit-button">{{ task.editing ? 'Save' : 'Edit' }}</button>
-        <button @click="deleteTask(index)" class="delete-button">Delete</button>
-        <span class="task-timestamp">Created: {{ formatDate(task.creationTime) }}</span>
-        <span v-if="task.completed" class="task-timestamp">Completed: {{ formatDate(task.completionTime) }}</span>
-      </li>
-    </ul>
-    <div v-if="completedTasks.length > 0" class="completed-tasks">
-      <h2>Completed Tasks</h2>
-      <ul>
-        <li v-for="(task, index) in completedTasks" :key="index">{{ task.text }}</li>
-      </ul>
+  <div class="todo-app" id="todo-app">
+    <h1 id="todo-list-title">Todo List</h1>
+    <SearchForm />
+    <div id="add-task-div">
+      <input placeholder="Add a new task" v-model="newTask" @keyup.enter="addTask">
+      <button id="add-task-button" @click="addTask">Add</button>
     </div>
+
+    <div id="task-list-div">
+      <ul>
+        <li v-for="(task, index) in tasks" :key="index">
+          <input type="checkbox" v-model="task.completed">
+          <span v-if="task.completed" style="text-decoration: line-through;">{{ task.text }}</span>
+          <span v-else> {{ task.text }}</span>
+        </li>
+     </ul>
+    </div>
+
   </div>
 </template>
 
 
 <script>
+import SearchForm from './components/SearchForm.vue'
+
 export default {
+  components: {
+    SearchForm
+  },
   data() {
     return {
       newTask: '',
@@ -32,127 +35,76 @@ export default {
     };
   },
   computed: {
-    completedTasks() {
-      return this.tasks.filter(task => task.completed);
-    },
   },
   methods: {
     addTask() {
-      if (this.newTask.trim() === '') return;
-      this.tasks.push({
-        text: this.newTask,
-        completed: false,
-        editing: false,
-        updatedText: '',
-        creationTime: new Date(), // Add creation timestamp here
-        completionTime: null, // Initialize completion timestamp as null
-      });
-      this.newTask = '';
-    },
-    deleteTask(index) {
-      this.tasks.splice(index, 1);
-    },
-    toggleEdit(index) {
-      this.tasks[index].editing = !this.tasks[index].editing;
-      this.tasks[index].updatedText = this.tasks[index].text;
-    },
-    saveTask(index) {
-      if (this.tasks[index].updatedText.trim() === '') return;
-      this.tasks[index].text = this.tasks[index].updatedText;
-      this.tasks[index].editing = false;
-    },
-    toggleCompleted(index) {
-      if (this.tasks[index].completed) {
-        this.tasks[index].completionTime = new Date(); // Set completion timestamp
-      } else {
-        this.tasks[index].completionTime = null; // Clear completion timestamp
+      if (this.newTask && this.newTask !== ''){
+        this.tasks.push({
+          text: this.newTask,
+          completed: false
+        })
+        this.newTask = ''
       }
-    },
-    formatDate(date) {
-      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-      return new Intl.DateTimeFormat('en-US', options).format(date);
-    },
+  }
   },
 };
 </script>
 
 
-
 <style>
+#todo-list-title{
+  color:rgb(255, 98, 0);
+}
 .todo-app {
   font-family: Arial, sans-serif;
   text-align: center;
   padding: 20px;
+  font-size: 17px;
 }
 
-.task-list {
-  list-style: none;
-  padding: 0;
-}
-
-.task-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.task-checkbox {
-  margin-right: 10px;
-}
-
-.delete-button {
-  background-color: #e74c3c;
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-
-.edit-input {
-  width: 80%;
-  padding: 4px;
-  margin-right: 10px;
-}
-
-.edit-button {
-  background-color: #3498db;
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-right: 5px;
-}
-
-/* Additional styles for the editing mode */
-.task-item {
+#add-task-div{
+  width: 25%;
+  height: auto;
   position: relative;
+  display: flex;
+  justify-content: right;
+  margin: 0 auto;
+  margin-bottom: 15px;
 }
 
-.edit-button {
-  position: absolute;
-  right: 80px;
-  }
-  .completed-tasks {
-  margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
+#add-task-div input{
+  width: 184px;
+  font-size: 17px;
+}
+#add-task-div button {
+  background-color: #59e73c;
+  color: white;
+  box-sizing: content-box;
+  border: 1px solid grey;
+  width: 53px;
+  height: 20px;
+  cursor: pointer;
+  margin-right: 86px;
+  font-size: 17px;
 }
 
-.completed-tasks h2 {
-  margin-bottom: 10px;
+#add-task-button:hover {
+  background-color: orangered;
 }
 
-.completed-tasks ul {
-  list-style: disc;
-  padding-left: 20px;
+#task-list-div {
+  border-radius: 5px;
+  background: rgb(240, 230, 230);
+  background-position: left top;
+  background-repeat: repeat;
+  padding: 20px;
+  width: 400px;
+  height: auto;
+  margin: 0 auto;
 }
-.task-timestamp {
-  color: #888;
-  font-size: 12px;
-  display: block;
-  margin-top: 4px;
+
+ul {
+  list-style: none;
+  text-align: left;
 }
 </style>
