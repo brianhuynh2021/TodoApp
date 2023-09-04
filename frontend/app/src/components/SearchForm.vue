@@ -1,23 +1,34 @@
 <template>
   <div class="search-button">
-    <input type="text" placeholder="Search task...">
-    <button>Search</button>
+    <input type="text" placeholder="Search a task..." v-model="searchQuery" @keyup.enter="searchTask">
+    <button @click="searchTask">Search</button>
   </div>
 </template>
 
 <script>
 export default {
-
+  data() {
+    return {searchQuery: ''}
+  },
+  methods: {
+    searchTask() {
+      this.$emit('search', this.searchQuery)
+      this.searchQuery = ''
+    }
+  }
 }
 </script>
 
 <style scoped>
 
 .search-button {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
-button{ 
+button:hover {
+  background: rgb(255, 174, 0);
+}
 
+button{ 
     background: #2196F3;
     color: white;
     font-size: 17px;

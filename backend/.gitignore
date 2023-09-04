@@ -1,0 +1,7 @@
+.venv
+/venv
+__init__
+.pyc
+/.pyc
+/settings.json
+settings.json
