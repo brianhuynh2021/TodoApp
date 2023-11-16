@@ -2,7 +2,7 @@
   <div class="todo-app" id="todo-app">
     <h1 id="todo-list-title">Todo List</h1>
     
-    <div id="add-task-to_list">
+    <div id="add-task-to-list">
       <SearchForm @search="handleSearch"/>
       <input placeholder="A new task" v-model="newTask" @keyup.enter="addTask">
       <button id="add-task-button" @click="addTask">Add</button>
@@ -53,16 +53,38 @@ export default {
     },
   methods: {
     addTask() {
-      if (this.newTask && this.newTask !== ''){
-        this.tasks.push({
-          newTask: this.newTask,
-          completed: false,
-          timeAdded: this.getTimeAdded(),
-          editing: false,
-          lastEdited: ''
+      if (this.newTask && this.newTask.trim() !== '') {
+        // Construct the data to send in the request
+        const taskData = {
+          task_name: this.newTask // Ensure this matches the expected field in your Django API
+        };
+
+        // Make a POST request to the server
+        fetch(`${process.env.baseURL}/api/todos/new_task/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Token your_token_here' // Uncomment if you need to send a token
+          },
+          body: JSON.stringify(taskData)
         })
-        this.newTask = ''
-        this.filteredTasks = [...this.tasks]
+        .then(response => response.json())
+        .then(data => {
+          // If the request was successful, push the new task to the tasks array
+          this.tasks.push({
+            id: data.id,
+            task: data.task,
+            completed: data.completed,
+            created_at: data.created_at,
+            completed_at: data.completed_at,
+            editing: false, // Assuming you want to control editing state on the frontend
+          });
+          this.newTask = ''; // Reset the newTask input
+          this.filteredTasks = [...this.tasks]; // Update any filtered views you have
+        })
+        .catch(error => {
+          console.error("There was an error creating the task:", error);
+        });
       }
     },
     getTimeAdded() {
@@ -128,18 +150,21 @@ export default {
   text-align: center;
   padding: 20px;
   font-size: 17px;
+  height: 1200px;
+  width: 1200px;
 }
 
-#add-task-to_list{
-  width: 30%;
+#add-task-to-list{
+  width: 50%;
   height: auto;
-  margin-left: 553.5px;
+  position: relative;
+  left: 250px;
   margin-bottom: 15px;
   border-bottom: 1px solid grey;
   padding-bottom: 15px;
 }
 
-#add-task-to_list input{
+#add-task-to-list input{
   width: 183.5px;
   font-size: 17px;
 }

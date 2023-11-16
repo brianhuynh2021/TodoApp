@@ -1,11 +1,15 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import Task
-from .serializers import TaskSerializer
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import TodoSerializer
 
-class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['newTask']
+
+class CreateTodoAPIView(generics.CreateAPIView):
+    serializer_class = TodoSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
