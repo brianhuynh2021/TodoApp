@@ -1,13 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
+import App from '../App.vue'
 
 const routes = [
     {
-      path: '/api', // Client-side URL path
+      path: '',
       name: 'CreateTask',
       component: App
     },
-    // ... other routes
   ];
   
   const router = createRouter({

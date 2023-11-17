@@ -10,12 +10,12 @@
     <!-- All tasks button -->
     <div><button id="all-task-btn" @click="loadAllTasks">All tasks</button></div>
     <!-- End all tasks button -->
-    <div v-if="filteredTasks.length > 0"  id="task-list-div">
-      <ul v-for="(task, index) in filteredTasks" :key="index">
-        <li @dblclick="toggleEdit(task)">
+    <div v-if="tasks.length > 0"  id="task-list-div">
+      <ul>
+        <li v-for="(task, index) in tasks" :key="index">
           <input type="checkbox" v-model="task.completed" @change="updateTime(task)">
           <span v-if="!task.editing" :class="{'task-completed': task.completed}">
-            {{ task.newTask }} - {{ task.timeAdded }}
+            {{ task.task_name }} - {{ task.timeAdded }}
           </span>
           <input
             v-else
@@ -54,37 +54,45 @@ export default {
   methods: {
     addTask() {
       if (this.newTask && this.newTask.trim() !== '') {
-        // Construct the data to send in the request
-        const taskData = {
-          task_name: this.newTask // Ensure this matches the expected field in your Django API
-        };
 
-        // Make a POST request to the server
-        fetch(`${process.env.baseURL}/api/todos/new_task/`, {
+        const taskData = {
+          task: this.newTask
+        }
+        console.log("taskData", taskData)
+        fetch(`http://localhost:8000/api/todos/new_task/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': 'Token your_token_here' // Uncomment if you need to send a token
-          },
+            'Content-Type': 'application/json'},
           body: JSON.stringify(taskData)
         })
-        .then(response => response.json())
-        .then(data => {
-          // If the request was successful, push the new task to the tasks array
+        .then((response) => response.json().then((data)=>{
           this.tasks.push({
             id: data.id,
-            task: data.task,
+            task_name: data.task,
             completed: data.completed,
             created_at: data.created_at,
             completed_at: data.completed_at,
-            editing: false, // Assuming you want to control editing state on the frontend
-          });
-          this.newTask = ''; // Reset the newTask input
-          this.filteredTasks = [...this.tasks]; // Update any filtered views you have
-        })
+            editing: false})
+            this.newTask = ''
+            // console.log(this.filteredTasks)
+        }))
+        // .then(data => {
+        //   console.log("data==>", data)
+
+        //   // this.tasks.push({
+        //   //   id: data.id,
+        //   //   task: data.task,
+        //   //   completed: data.completed,
+        //   //   created_at: data.created_at,
+        //   //   completed_at: data.completed_at,
+        //   //   editing: false, 
+        //   // });
+        //   // this.newTask = ''
+        //   // this.filteredTasks = [...this.tasks]
+        // })
         .catch(error => {
           console.error("There was an error creating the task:", error);
-        });
+        })
       }
     },
     getTimeAdded() {
